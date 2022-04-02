@@ -14,11 +14,13 @@ class Home extends StatefulWidget {
 class HomeState extends State<Home> {
   DbHelper dbHelper = DbHelper();
   int count = 0;
-  List<Item> itemList;
+  List<Item>? itemList;
   @override
   Widget build(BuildContext context) {
+    updateListView();
+
     if (itemList == null) {
-      itemList = List<Item>();
+      itemList = <Item>[];
     }
     return Scaffold(
       appBar: AppBar(
@@ -51,7 +53,7 @@ class HomeState extends State<Home> {
     );
   }
 
-  Future<Item> navigateToEntryForm(BuildContext context, Item item) async {
+  Future<Item?> navigateToEntryForm(BuildContext context, Item? item) async {
     var result = await Navigator.push(context,
         MaterialPageRoute(builder: (BuildContext context) {
       return EntryForm(item);
@@ -60,7 +62,7 @@ class HomeState extends State<Home> {
   }
 
   ListView createListView() {
-    TextStyle textStyle = Theme.of(context).textTheme.headline5;
+    TextStyle? textStyle = Theme.of(context).textTheme.headline5;
     return ListView.builder(
       itemCount: count,
       itemBuilder: (BuildContext context, int index) {
@@ -68,25 +70,40 @@ class HomeState extends State<Home> {
           color: Colors.white,
           elevation: 2.0,
           child: ListTile(
+            isThreeLine: true,
             leading: CircleAvatar(
               backgroundColor: Colors.red,
               child: Icon(Icons.ad_units),
             ),
             title: Text(
-              this.itemList[index].name,
+              this.itemList![index].name,
               style: textStyle,
             ),
-            subtitle: Text(this.itemList[index].price.toString()),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Price : " + this.itemList![index].price.toString()),
+                SizedBox(
+                  height: 5.0,
+                ),
+                Text("Stock : " + this.itemList![index].stok.toString()),
+                Text("Kode Barang : " + this.itemList![index].kode.toString()),
+              ],
+            ),
             trailing: GestureDetector(
               child: Icon(Icons.delete),
               onTap: () async {
                 //TODO 3 Panggil Fungsi untuk Delete dari DB berdasarkan Item
+                dbHelper.delete(itemList![index].id);
+                updateListView();
               },
             ),
             onTap: () async {
               var item =
-                  await navigateToEntryForm(context, this.itemList[index]);
+                  await navigateToEntryForm(context, this.itemList![index]);
               //TODO 4 Panggil Fungsi untuk Edit data
+              dbHelper.update(item!);
+              updateListView();
             },
           ),
         );

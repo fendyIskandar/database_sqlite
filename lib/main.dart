@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:databasesql/pages/home.dart';
 
-//package letak folder Anda
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
